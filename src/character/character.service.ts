@@ -1,11 +1,34 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateCharacterDto } from './dto/create-character.dto';
 import { UpdateCharacterDto } from './dto/update-character.dto';
+import { Character } from './entities/character.entity';
 
 @Injectable()
 export class CharacterService {
-  create(createCharacterDto: CreateCharacterDto) {
-    return createCharacterDto;
+
+  constructor(
+    @InjectModel(Character.name)
+    private readonly characterModel: Model<Character>
+  ) { }
+
+  async create(createCharacterDto: CreateCharacterDto) {
+
+    try {
+
+      const character = await this.characterModel.create(createCharacterDto)
+      return character;
+
+    } catch (error) {
+
+      if (error.code === 11000) throw new BadRequestException(
+        `Duplicated entry for name ${createCharacterDto.name}`
+      )
+      throw new InternalServerErrorException()
+
+    }
+
   }
 
   findAll() {
