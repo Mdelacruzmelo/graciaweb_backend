@@ -1,26 +1,77 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateCharacterDto } from './dto/create-character.dto';
 import { UpdateCharacterDto } from './dto/update-character.dto';
+import { Character } from './entities/character.entity';
 
 @Injectable()
 export class CharacterService {
-  create(createCharacterDto: CreateCharacterDto) {
-    return 'This action adds a new character';
+
+  constructor(
+    @InjectModel(Character.name)
+    private readonly characterModel: Model<Character>
+  ) { }
+
+  async create(createCharacterDto: CreateCharacterDto) {
+
+    try {
+
+      const character = await this.characterModel.create(createCharacterDto)
+      return character;
+
+    } catch (error) {
+
+      if (error.code === 11000) throw new BadRequestException(
+        `Duplicated entry for name ${createCharacterDto.name}`
+      )
+      throw new InternalServerErrorException()
+
+    }
+
   }
 
-  findAll() {
-    return `This action returns all character`;
+  async findAll() {
+    const characters = await this.characterModel.find()
+    return characters
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} character`;
+  async findOne(term: string) {
+
+    let character: Character;
+
+    character = await this.characterModel.findOne({
+      url: `${process.env.API_URL}/people/${term}/`
+    })
+
+    if (!character) {
+      throw new NotFoundException(
+        `Character with id: ${term} not found`
+      )
+    }
+
+    return character;
   }
 
   update(id: number, updateCharacterDto: UpdateCharacterDto) {
     return `This action updates a #${id} character`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} character`;
+  async remove(id: number) {
+
+    let character: Character;
+
+    character = await this.characterModel.findOne({
+      url: `${process.env.API_URL}/people/${id}/`
+    })
+    if (!character) {
+      throw new NotFoundException(
+        `Character with id: ${id} not found`
+      )
+    }
+
+    character.delete()
+
+    return `Character deleted successfully`;
   }
 }
