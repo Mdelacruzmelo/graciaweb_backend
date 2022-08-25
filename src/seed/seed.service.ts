@@ -24,6 +24,7 @@ export class SeedService {
     await this.characterModel.insertMany(characters) // Insert db
 
     return "Database filled successfully"
+    
   }
 
 }
