@@ -36,8 +36,15 @@ export class CharacterService {
     return characters
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} character`;
+  async findOne(term: string) {
+
+    let character: Character;
+
+    character = await this.characterModel.findOne({
+      url: `${process.env.API_URL}/people/${term}/`
+    })
+
+    return character;
   }
 
   update(id: number, updateCharacterDto: UpdateCharacterDto) {
