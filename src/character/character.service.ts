@@ -5,7 +5,7 @@ import { UpdateCharacterDto } from './dto/update-character.dto';
 @Injectable()
 export class CharacterService {
   create(createCharacterDto: CreateCharacterDto) {
-    return 'This action adds a new character';
+    return createCharacterDto;
   }
 
   findAll() {
