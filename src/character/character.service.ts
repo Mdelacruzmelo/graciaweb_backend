@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateCharacterDto } from './dto/create-character.dto';
@@ -44,6 +44,12 @@ export class CharacterService {
       url: `${process.env.API_URL}/people/${term}/`
     })
 
+    if (!character) {
+      throw new NotFoundException(
+        `Character with id: ${term} not found`
+      )
+    }
+
     return character;
   }
 
@@ -51,7 +57,21 @@ export class CharacterService {
     return `This action updates a #${id} character`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} character`;
+  async remove(id: number) {
+
+    let character: Character;
+
+    character = await this.characterModel.findOne({
+      url: `${process.env.API_URL}/people/${id}/`
+    })
+    if (!character) {
+      throw new NotFoundException(
+        `Character with id: ${id} not found`
+      )
+    }
+
+    character.delete()
+
+    return `Character deleted successfully`;
   }
 }

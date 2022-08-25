@@ -14,11 +14,13 @@ export class CharacterController {
   }
 
   @Get()
+  @HttpCode(HttpStatus.OK)
   findAll() {
     return this.characterService.findAll();
   }
 
   @Get(':term')
+  @HttpCode(HttpStatus.OK)
   findOne(@Param('term') term: string) {
     return this.characterService.findOne(term);
   }
@@ -29,6 +31,7 @@ export class CharacterController {
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.OK)
   remove(@Param('id') id: string) {
     return this.characterService.remove(+id);
   }
