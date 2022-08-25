@@ -31,8 +31,9 @@ export class CharacterService {
 
   }
 
-  findAll() {
-    return `This action returns all character`;
+  async findAll() {
+    const characters = await this.characterModel.find()
+    return characters
   }
 
   findOne(id: number) {
